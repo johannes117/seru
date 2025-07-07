@@ -95,7 +95,7 @@ export default function AddressSplitterToolPage() {
       </div>
 
       <FileUploader
-        title="1. Upload Spreadsheet File"
+        title="Upload Spreadsheet File"
         onFileSelect={handleFileLoad}
       />
 
