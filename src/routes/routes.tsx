@@ -3,6 +3,7 @@ import { RootRoute } from "./__root";
 import DashboardPage from "../pages/DashboardPage";
 import FilterToolPage from "@/pages/FilterToolPage";
 import ReorderToolPage from "@/pages/ReorderToolPage";
+import SettingsPage from "@/pages/SettingsPage";
 
 // TODO: Steps to add a new route:
 // 1. Create a new page component in the '../pages/' directory (e.g., NewPage.tsx)
@@ -29,8 +30,15 @@ export const ReorderToolRoute = createRoute({
   component: ReorderToolPage,
 });
 
+export const SettingsRoute = createRoute({
+  getParentRoute: () => RootRoute,
+  path: "/settings",
+  component: SettingsPage,
+});
+
 export const rootTree = RootRoute.addChildren([
   DashboardRoute,
   FilterToolRoute,
   ReorderToolRoute,
+  SettingsRoute,
 ]);

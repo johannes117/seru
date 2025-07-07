@@ -36,6 +36,13 @@ export default function NavigationMenu() {
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Link to="/settings">
+            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              {t("titleSettingsPage")}
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenuBase>
   );

@@ -10,6 +10,7 @@ i18n.use(initReactI18next).init({
         titleDashboardPage: "Dashboard",
         titleFilterToolPage: "Filter Tool",
         titleReorderToolPage: "Reorder Tool",
+        titleSettingsPage: "Settings",
       },
     },
     "pt-BR": {
@@ -18,6 +19,7 @@ i18n.use(initReactI18next).init({
         titleDashboardPage: "Painel",
         titleFilterToolPage: "Ferramenta de Filtro",
         titleReorderToolPage: "Ferramenta de Reordenar",
+        titleSettingsPage: "Configurações",
       },
     },
   },
