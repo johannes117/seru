@@ -73,7 +73,7 @@ export default function FilterToolPage() {
   const canFilter = mainData && noContactData && mainEmailCol && noContactEmailCol;
 
   return (
-    <div className="flex h-full flex-col p-4 space-y-6">
+    <div className="flex flex-col p-4 space-y-6">
       <div className="mb-4">
         <h1 className="text-3xl font-bold">{t("titleFilterToolPage")}</h1>
         <p className="text-muted-foreground">

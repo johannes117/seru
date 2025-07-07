@@ -66,7 +66,7 @@ export default function ReorderToolPage() {
   const canReorder = data && columnOrder.length > 0 && columnOrder.every(col => col !== "");
 
   return (
-    <div className="flex h-full flex-col p-4 space-y-6">
+    <div className="flex flex-col p-4 space-y-6">
       <div className="mb-4">
         <h1 className="text-3xl font-bold">{t("titleReorderToolPage")}</h1>
         <p className="text-muted-foreground">

@@ -11,7 +11,7 @@ export default function BaseLayout({
     <>
       <DragWindowRegion title="Seru" />
       <NavigationMenu />
-      <main className="h-screen pb-20 p-2">{children}</main>
+      <main className="h-screen overflow-y-auto pb-20 p-2">{children}</main>
     </>
   );
 }

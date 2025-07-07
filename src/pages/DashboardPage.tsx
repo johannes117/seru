@@ -9,7 +9,7 @@ export default function DashboardPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="flex h-full flex-col items-center justify-center">
+    <div className="flex min-h-full flex-col items-center justify-center py-8">
       <div className="text-center mb-12">
         <h1 className="font-mono text-5xl font-bold">{t("appName")}</h1>
         <p className="text-muted-foreground">
