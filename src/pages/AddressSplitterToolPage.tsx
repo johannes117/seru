@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle, Spline, Settings2 } from "lucide-react";
-import { Toggle } from "@/components/ui/toggle";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type OutputKey = keyof Omit<ParsedAddress, 'street'> | 'unitAndStreetNumber';
 
@@ -73,14 +73,14 @@ export default function AddressSplitterToolPage() {
     }
 
     const getOutputKeys = () => {
-      let keys: OutputKey[] = [];
+      const keys: OutputKey[] = [];
       if (combineUnitAndNumber) {
         if (activeOutputs.includes('unitAndStreetNumber')) keys.push('unitAndStreetNumber');
       } else {
         if (activeOutputs.includes('unit')) keys.push('unit');
         if (activeOutputs.includes('streetNumber')) keys.push('streetNumber');
       }
-      ['streetName', 'city', 'state', 'postcode'].forEach((key: OutputKey) => {
+      (['streetName', 'city', 'state', 'postcode'] as OutputKey[]).forEach((key) => {
         if (activeOutputs.includes(key)) keys.push(key);
       });
       return keys;
@@ -173,12 +173,13 @@ export default function AddressSplitterToolPage() {
             <div>
               <h4 className="font-medium mb-4">Select Output Columns</h4>
               <div className="flex items-center space-x-2 p-2 rounded-md bg-muted/50 mb-4">
-                  <Toggle
-                    pressed={combineUnitAndNumber}
-                    onPressedChange={(pressed) => {
-                      setCombineUnitAndNumber(pressed)
+                  <Checkbox
+                    checked={combineUnitAndNumber}
+                    onCheckedChange={(checked) => {
+                      const isChecked = checked === true;
+                      setCombineUnitAndNumber(isChecked);
                       // Toggle relevant active outputs
-                      if (pressed) {
+                      if (isChecked) {
                         setActiveOutputs(prev => [...prev.filter(k => k !== 'unit' && k !== 'streetNumber'), 'unitAndStreetNumber']);
                       } else {
                         setActiveOutputs(prev => [...prev.filter(k => k !== 'unitAndStreetNumber'), 'unit', 'streetNumber']);
@@ -194,7 +195,10 @@ export default function AddressSplitterToolPage() {
                       {label}
                     </label>
                     <div className="flex items-center space-x-2">
-                      <Toggle pressed={activeOutputs.includes(key)} onPressedChange={() => handleToggleOutput(key)} />
+                      <Checkbox 
+                        checked={activeOutputs.includes(key)} 
+                        onCheckedChange={() => handleToggleOutput(key)} 
+                      />
                       <Input
                         value={outputNames[key]}
                         onChange={(e) => handleNameChange(key, e.target.value)}
