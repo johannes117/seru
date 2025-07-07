@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Filter, ListRestart } from "lucide-react";
+import { ArrowRight, Filter, ListRestart, Spline } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
@@ -17,7 +17,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <ToolCard
           title={t("titleFilterToolPage")}
           icon={<Filter className="w-10 h-10 mb-4 text-primary" />}
@@ -29,6 +29,12 @@ export default function DashboardPage() {
           icon={<ListRestart className="w-10 h-10 mb-4 text-primary" />}
           description="Easily rearrange the columns of your spreadsheet."
           to="/reorder"
+        />
+        <ToolCard
+          title={t("titleAddressSplitterPage")}
+          icon={<Spline className="w-10 h-10 mb-4 text-primary" />}
+          description="Separate a single address column into multiple parts."
+          to="/split-address"
         />
       </div>
     </div>

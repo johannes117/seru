@@ -4,6 +4,7 @@ import DashboardPage from "../pages/DashboardPage";
 import FilterToolPage from "@/pages/FilterToolPage";
 import ReorderToolPage from "@/pages/ReorderToolPage";
 import SettingsPage from "@/pages/SettingsPage";
+import AddressSplitterToolPage from "@/pages/AddressSplitterToolPage";
 
 // TODO: Steps to add a new route:
 // 1. Create a new page component in the '../pages/' directory (e.g., NewPage.tsx)
@@ -36,9 +37,16 @@ export const SettingsRoute = createRoute({
   component: SettingsPage,
 });
 
+export const AddressSplitterRoute = createRoute({
+  getParentRoute: () => RootRoute,
+  path: "/split-address",
+  component: AddressSplitterToolPage,
+});
+
 export const rootTree = RootRoute.addChildren([
   DashboardRoute,
   FilterToolRoute,
   ReorderToolRoute,
+  AddressSplitterRoute,
   SettingsRoute,
 ]);

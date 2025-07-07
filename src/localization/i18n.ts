@@ -11,6 +11,7 @@ i18n.use(initReactI18next).init({
         titleFilterToolPage: "Filter Tool",
         titleReorderToolPage: "Reorder Tool",
         titleSettingsPage: "Settings",
+        titleAddressSplitterPage: "Address Splitter",
       },
     },
     "pt-BR": {
@@ -20,6 +21,7 @@ i18n.use(initReactI18next).init({
         titleFilterToolPage: "Ferramenta de Filtro",
         titleReorderToolPage: "Ferramenta de Reordenar",
         titleSettingsPage: "Configurações",
+        titleAddressSplitterPage: "Divisor de Endereços",
       },
     },
   },

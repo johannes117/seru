@@ -37,6 +37,13 @@ export default function NavigationMenu() {
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
+          <Link to="/split-address">
+            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              {t("titleAddressSplitterPage")}
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
           <Link to="/settings">
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
               {t("titleSettingsPage")}
