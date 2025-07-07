@@ -104,7 +104,7 @@ export default function AddressSplitterToolPage() {
       const parsed = parseAddress(addressString);
       const newCells = finalOutputKeys.map(key => {
         if (key === 'unitAndStreetNumber') {
-          return [parsed.unit, parsed.streetNumber].filter(Boolean).join(' ').trim();
+          return [parsed.unit, parsed.streetNumber].filter(Boolean).join(', ').trim();
         }
         return parsed[key as keyof ParsedAddress] || "";
       });
