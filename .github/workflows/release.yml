@@ -1,0 +1,48 @@
+name: Release Build
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run make
+
+      - name: Find Windows executable
+        shell: powershell
+        run: |
+          $exePath = Get-ChildItem -Path "out\make\squirrel.windows\x64\" -Filter "*.exe" -Recurse | Select-Object -First 1
+          if ($exePath) {
+            echo "EXE_PATH=$($exePath.FullName)" >> $env:GITHUB_ENV
+            echo "EXE_NAME=$($exePath.Name)" >> $env:GITHUB_ENV
+            echo "Found executable: $($exePath.FullName)"
+          } else {
+            echo "No executable found!"
+            exit 1
+          }
+
+      - name: Upload Windows executable to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.EXE_PATH }}
+          asset_name: ${{ env.EXE_NAME }}
+          asset_content_type: application/octet-stream
