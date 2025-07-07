@@ -2,5 +2,4 @@
 alwaysApply: true
 ---
 
-Please use bun instead of npm
 never edit the .env file.
