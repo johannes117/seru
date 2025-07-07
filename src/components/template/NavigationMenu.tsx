@@ -18,14 +18,21 @@ export default function NavigationMenu() {
         <NavigationMenuItem>
           <Link to="/">
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              {t("titleHomePage")}
+              {t("titleDashboardPage")}
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <Link to="/second-page">
+          <Link to="/filter">
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              {t("titleSecondPage")}
+              {t("titleFilterToolPage")}
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Link to="/reorder">
+            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              {t("titleReorderToolPage")}
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>

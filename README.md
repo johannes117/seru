@@ -1,8 +1,15 @@
-# electron-shadcn
+# Seru - Simple Spreadsheet Editor
 
-Electron in all its glory. Everything you will need to develop your beautiful desktop application.
+A simple and elegant desktop application for basic spreadsheet manipulation, built with Electron, React, and TypeScript.
 
 ![Demo GIF](https://github.com/LuanRoger/electron-shadcn/blob/main/images/demo.gif)
+
+## Features
+
+- **Filter Tool**: Filter a spreadsheet by removing rows that match entries in a second "no-contact" list.
+- **Reorder Tool**: Easily change the column order of your spreadsheet.
+- **Modern UI**: Built with Shadcn UI and Tailwind CSS.
+- **Cross-Platform**: Works on Windows, macOS, and Linux.
 
 ## Libs and tools
 

@@ -1,7 +1,8 @@
 import { createRoute } from "@tanstack/react-router";
 import { RootRoute } from "./__root";
-import HomePage from "../pages/HomePage";
-import SecondPage from "@/pages/SecondPage";
+import DashboardPage from "../pages/DashboardPage";
+import FilterToolPage from "@/pages/FilterToolPage";
+import ReorderToolPage from "@/pages/ReorderToolPage";
 
 // TODO: Steps to add a new route:
 // 1. Create a new page component in the '../pages/' directory (e.g., NewPage.tsx)
@@ -10,28 +11,26 @@ import SecondPage from "@/pages/SecondPage";
 // 4. Add the new route to the routeTree in RootRoute.addChildren([...])
 // 5. Add a new Link in the navigation section of RootRoute if needed
 
-// Example of adding a new route:
-// 1. Create '../pages/NewPage.tsx'
-// 2. Import: import NewPage from '../pages/NewPage';
-// 3. Define route:
-//    const NewRoute = createRoute({
-//      getParentRoute: () => RootRoute,
-//      path: '/new',
-//      component: NewPage,
-//    });
-// 4. Add to routeTree: RootRoute.addChildren([HomeRoute, NewRoute, ...])
-// 5. Add Link: <Link to="/new">New Page</Link>
-
-export const HomeRoute = createRoute({
+export const DashboardRoute = createRoute({
   getParentRoute: () => RootRoute,
   path: "/",
-  component: HomePage,
+  component: DashboardPage,
 });
 
-export const SecondPageRoute = createRoute({
+export const FilterToolRoute = createRoute({
   getParentRoute: () => RootRoute,
-  path: "/second-page",
-  component: SecondPage,
+  path: "/filter",
+  component: FilterToolPage,
 });
 
-export const rootTree = RootRoute.addChildren([HomeRoute, SecondPageRoute]);
+export const ReorderToolRoute = createRoute({
+  getParentRoute: () => RootRoute,
+  path: "/reorder",
+  component: ReorderToolPage,
+});
+
+export const rootTree = RootRoute.addChildren([
+  DashboardRoute,
+  FilterToolRoute,
+  ReorderToolRoute,
+]);
