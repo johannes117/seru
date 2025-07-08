@@ -103,14 +103,14 @@ export function parseAddress(address: string): ParsedAddress {
     return result;
   }
 
-  const ausStates = new Set(['NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT']);
-  const ausStatePostcodeRegex = /\b([A-Z]{2,3})\b\s+(\d{4})\b/i;
+  // This new regex is more explicit and robust for matching Australian states.
+  const ausStatePostcodeRegex = /\b(NSW|VIC|QLD|WA|SA|TAS|ACT|NT)\b\s+(\d{4})\b/i;
 
   const fullAddressString = address.trim();
   const match = fullAddressString.match(ausStatePostcodeRegex);
 
   let streetLine = '';
-  if (match && ausStates.has(match[1].toUpperCase())) {
+  if (match) { // The check for a valid state is now handled by the regex itself.
     result.state = match[1].toUpperCase();
     result.postcode = match[2];
 
