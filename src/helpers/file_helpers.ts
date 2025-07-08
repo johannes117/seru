@@ -103,36 +103,41 @@ export function parseAddress(address: string): ParsedAddress {
     return result;
   }
 
-  // This new regex is more explicit and robust for matching Australian states.
-  const ausStatePostcodeRegex = /\b(NSW|VIC|QLD|WA|SA|TAS|ACT|NT)\b\s+(\d{4})\b/i;
-
   const fullAddressString = address.trim();
+  const ausStatePostcodeRegex = /\b(NSW|VIC|QLD|WA|SA|TAS|ACT|NT)\b\s+(\d{4})\b/i;
   const match = fullAddressString.match(ausStatePostcodeRegex);
 
   let streetLine = '';
-  if (match) { // The check for a valid state is now handled by the regex itself.
+  let prePostcodePart = '';
+
+  if (match) {
     result.state = match[1].toUpperCase();
     result.postcode = match[2];
-
-    const remaining = fullAddressString.substring(0, match.index).trim().replace(/,$/, '');
-
-    if (remaining.includes(',')) {
-        const remainingParts = remaining.split(',').map(p => p.trim());
-        result.city = remainingParts.pop() || '';
-        streetLine = remainingParts.join(', ');
-    } else {
-        // Handle cases like "789 Queen Street Brisbane" where city is not comma-separated
-        const words = remaining.split(' ').filter(Boolean);
-        if (words.length > 1) {
-            result.city = words.pop() || '';
-            streetLine = words.join(' ');
-        } else {
-            streetLine = remaining;
-        }
-    }
+    prePostcodePart = fullAddressString.substring(0, match.index).trim().replace(/,$/, '');
   } else {
-    // Fallback for addresses without a clear state/postcode match
-    streetLine = address;
+    // If no state/postcode, the whole string is the part we need to process for street/city
+    prePostcodePart = fullAddressString;
+  }
+
+  // Now, consistently process the pre-postcode part for city and street
+  if (prePostcodePart.includes(',')) {
+      const parts = prePostcodePart.split(',').map(p => p.trim());
+      result.city = parts.pop() || '';
+      streetLine = parts.join(', ');
+  } else {
+    // Only apply the space-based heuristic if we have a state anchor, as it's less reliable.
+    if (match) {
+      const words = prePostcodePart.split(' ').filter(Boolean);
+      if (words.length > 1) {
+          result.city = words.pop() || '';
+          streetLine = words.join(' ');
+      } else {
+          streetLine = prePostcodePart;
+      }
+    } else {
+      // No state, no comma. Assume it's all street. This is the safest bet.
+      streetLine = prePostcodePart;
+    }
   }
   
   result.street = streetLine;
