@@ -58,6 +58,8 @@ export default function AddressSplitterToolPage() {
   const [combineUnitAndNumber, setCombineUnitAndNumber] = useState(false);
   const [hideInputBlanks, setHideInputBlanks] = useState(false);
   const [hideInputBlanksCol, setHideInputBlanksCol] = useState('');
+  const [hideOutputBlanks, setHideOutputBlanks] = useState(false);
+  const [hideOutputBlanksCol, setHideOutputBlanksCol] = useState('');
 
   const handleFileLoad = async (file: File | null) => {
     if (!file) {
@@ -160,6 +162,20 @@ export default function AddressSplitterToolPage() {
     });
     return [header, ...body];
   }, [data, hideInputBlanks, hideInputBlanksCol]);
+
+  const displayResultData = useMemo(() => {
+    if (!resultData || !hideOutputBlanks || !hideOutputBlanksCol) return resultData;
+
+    const header = resultData[0];
+    const columnIndex = header.indexOf(hideOutputBlanksCol);
+    if (columnIndex === -1) return resultData;
+
+    const body = resultData.slice(1).filter(row => {
+        const cellValue = row[columnIndex];
+        return cellValue !== null && cellValue !== undefined && cellValue.toString().trim() !== '';
+    });
+    return [header, ...body];
+  }, [resultData, hideOutputBlanks, hideOutputBlanksCol]);
 
   const visibleOutputOptions = useMemo(() => {
     let options = outputOptions;
@@ -313,7 +329,28 @@ export default function AddressSplitterToolPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <DataTable data={resultData} />
+            <div className="flex items-center gap-4 mb-4 flex-wrap">
+                <div className="flex items-center space-x-2">
+                    <Checkbox
+                        id="hide-blanks-output"
+                        checked={hideOutputBlanks}
+                        onCheckedChange={(checked) => setHideOutputBlanks(checked === true)}
+                    />
+                    <label htmlFor="hide-blanks-output" className="text-sm font-medium whitespace-nowrap">Hide rows with blank cells in column:</label>
+                </div>
+                <Select onValueChange={setHideOutputBlanksCol} value={hideOutputBlanksCol} disabled={!hideOutputBlanks}>
+                    <SelectTrigger className="w-[250px]">
+                        <SelectValue placeholder="Select column..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {headers(resultData).map((h, i) => (
+                            <SelectItem key={i} value={h.toString()}>{h}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {displayResultData && <DataTable data={displayResultData} />}
             <Button
               onClick={() =>
                 downloadSheet(resultData, "split_address_data.xlsx")
