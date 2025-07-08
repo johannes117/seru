@@ -75,7 +75,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
                 <h4 className="font-medium">Version</h4>
-                <p className="text-muted-foreground">0.1.0</p>
+                <p className="text-muted-foreground">0.2.0</p>
               </div>
               <div>
                 <h4 className="font-medium">Built with</h4>

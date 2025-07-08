@@ -11,7 +11,7 @@ import DataTable from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Combine, CheckCircle, Settings2 } from "lucide-react";
+import { Combine, CheckCircle, Settings2, Trash2 } from "lucide-react";
 
 export default function RecordSplitterToolPage() {
   const { t } = useTranslation();
@@ -21,6 +21,17 @@ export default function RecordSplitterToolPage() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [splitCount, setSplitCount] = useState<number>(0);
+  const [resetKey, setResetKey] = useState(0);
+
+  const handleClearProgress = () => {
+    setOriginalData(null);
+    setOriginalFileName("");
+    setSplitSize(10000);
+    setIsProcessing(false);
+    setIsComplete(false);
+    setSplitCount(0);
+    setResetKey((prev) => prev + 1);
+  };
 
   const handleFileLoad = async (file: File | null) => {
     if (!file) {
@@ -73,14 +84,23 @@ export default function RecordSplitterToolPage() {
 
   return (
     <div className="flex flex-col p-4 space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">{t("titleRecordSplitterPage")}</h1>
-        <p className="text-muted-foreground">
-          Upload a spreadsheet to split it into multiple smaller files.
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">{t("titleRecordSplitterPage")}</h1>
+          <p className="text-muted-foreground">
+            Upload a spreadsheet to split it into multiple smaller files.
+          </p>
+        </div>
+        {originalData && (
+          <Button variant="outline" onClick={handleClearProgress}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Clear
+          </Button>
+        )}
       </div>
 
       <FileUploader
+        key={resetKey}
         title="Upload Spreadsheet File"
         acceptedFileTypes=".csv, .xlsx, .xls"
         onFileSelect={handleFileLoad}

@@ -23,7 +23,13 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Spline, Settings2 } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle,
+  Spline,
+  Settings2,
+  Trash2,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 type OutputKey = keyof Omit<ParsedAddress, 'street'> | 'unitAndStreetNumber' | 'fullStreet';
@@ -39,27 +45,45 @@ const outputOptions: { key: OutputKey; label: string; }[] = [
     { key: 'postcode', label: 'Postcode' },
 ];
 
+const initialOutputNames: Record<OutputKey, string> = {
+  unit: "Unit",
+  streetNumber: "Street Number",
+  streetName: "Street Name",
+  city: "Suburb",
+  state: "State",
+  postcode: "Postcode",
+  unitAndStreetNumber: "Unit/Street Number",
+  fullStreet: "Street Address",
+};
+
 export default function AddressSplitterToolPage() {
   const [data, setData] = useState<SheetData | null>(null);
   const [resultData, setResultData] = useState<SheetData | null>(null);
   const [addressColumn, setAddressColumn] = useState<string>("");
   const [activeOutputs, setActiveOutputs] = useState<OutputKey[]>(['fullStreet', 'city', 'state', 'postcode']);
-  const [outputNames, setOutputNames] = useState<Record<OutputKey, string>>({
-      unit: "Unit",
-      streetNumber: "Street Number",
-      streetName: "Street Name",
-      city: "Suburb",
-      state: "State",
-      postcode: "Postcode",
-      unitAndStreetNumber: "Unit/Street Number",
-      fullStreet: "Street Address",
-    });
+  const [outputNames, setOutputNames] = useState<Record<OutputKey, string>>(initialOutputNames);
   const [combineFullStreet, setCombineFullStreet] = useState(true);
   const [combineUnitAndNumber, setCombineUnitAndNumber] = useState(false);
   const [hideInputBlanks, setHideInputBlanks] = useState(false);
   const [hideInputBlanksCol, setHideInputBlanksCol] = useState('');
   const [hideOutputBlanks, setHideOutputBlanks] = useState(false);
   const [hideOutputBlanksCol, setHideOutputBlanksCol] = useState('');
+  const [resetKey, setResetKey] = useState(0);
+
+  const handleClearProgress = () => {
+    setData(null);
+    setResultData(null);
+    setAddressColumn("");
+    setActiveOutputs(['fullStreet', 'city', 'state', 'postcode']);
+    setOutputNames(initialOutputNames);
+    setCombineFullStreet(true);
+    setCombineUnitAndNumber(false);
+    setHideInputBlanks(false);
+    setHideInputBlanksCol('');
+    setHideOutputBlanks(false);
+    setHideOutputBlanksCol('');
+    setResetKey((prev) => prev + 1);
+  };
 
   const handleFileLoad = async (file: File | null) => {
     if (!file) {
@@ -191,12 +215,23 @@ export default function AddressSplitterToolPage() {
 
   return (
     <div className="flex flex-col p-4 space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">Address Splitter Tool</h1>
-        <p className="text-muted-foreground">Upload a file and split address columns into separate components.</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Address Splitter Tool</h1>
+          <p className="text-muted-foreground">
+            Upload a file and split address columns into separate components.
+          </p>
+        </div>
+        {data && (
+          <Button variant="outline" onClick={handleClearProgress}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Clear
+          </Button>
+        )}
       </div>
 
       <FileUploader
+        key={resetKey}
         title="Upload Spreadsheet File"
         acceptedFileTypes=".csv, .xlsx, .xls"
         onFileSelect={handleFileLoad}
