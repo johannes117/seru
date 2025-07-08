@@ -23,7 +23,7 @@ function createWindow() {
 
       preload: preload,
     },
-    titleBarStyle: "hidden",
+    frame: false
   });
   registerListeners(mainWindow);
 
