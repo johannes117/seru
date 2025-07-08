@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState, useMemo } from "react";
 import {
   downloadSheet,
   parseAddress,
@@ -9,7 +8,12 @@ import {
 } from "@/helpers/file_helpers";
 import FileUploader from "@/components/FileUploader";
 import DataTable from "@/components/DataTable";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -22,14 +26,25 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle, Spline, Settings2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
-type OutputKey = keyof Omit<ParsedAddress, 'street'> | 'unitAndStreetNumber';
+type OutputKey = keyof Omit<ParsedAddress, 'street'> | 'unitAndStreetNumber' | 'fullStreet';
+
+const outputOptions: { key: OutputKey; label: string; }[] = [
+    { key: 'unit', label: 'Unit' },
+    { key: 'streetNumber', label: 'Street Number' },
+    { key: 'streetName', label: 'Street Name' },
+    { key: 'unitAndStreetNumber', label: 'Unit & Street Number' },
+    { key: 'fullStreet', label: 'Street Address' },
+    { key: 'city', label: 'Suburb/City' },
+    { key: 'state', label: 'State' },
+    { key: 'postcode', label: 'Postcode' },
+];
 
 export default function AddressSplitterToolPage() {
-  const { t } = useTranslation();
   const [data, setData] = useState<SheetData | null>(null);
   const [resultData, setResultData] = useState<SheetData | null>(null);
   const [addressColumn, setAddressColumn] = useState<string>("");
-  const [activeOutputs, setActiveOutputs] = useState<OutputKey[]>(['unit', 'streetNumber', 'streetName', 'city', 'state', 'postcode']);
+  const [addressColumnSearch, setAddressColumnSearch] = useState("");
+  const [activeOutputs, setActiveOutputs] = useState<OutputKey[]>(['fullStreet', 'city', 'state', 'postcode']);
   const [outputNames, setOutputNames] = useState<Record<OutputKey, string>>({
       unit: "Unit",
       streetNumber: "Street Number",
@@ -38,8 +53,12 @@ export default function AddressSplitterToolPage() {
       state: "State",
       postcode: "Postcode",
       unitAndStreetNumber: "Unit/Street Number",
+      fullStreet: "Street Address",
     });
+  const [combineFullStreet, setCombineFullStreet] = useState(true);
   const [combineUnitAndNumber, setCombineUnitAndNumber] = useState(false);
+  const [hideInputBlanks, setHideInputBlanks] = useState(false);
+  const [hideInputBlanksCol, setHideInputBlanksCol] = useState('');
 
   const handleFileLoad = async (file: File | null) => {
     if (!file) {
@@ -47,9 +66,14 @@ export default function AddressSplitterToolPage() {
       setResultData(null);
       return;
     }
-    const sheetData = await parseSheet(file);
-    setData(sheetData);
-    setResultData(null);
+
+    try {
+      const sheetData = await parseSheet(file);
+      setData(sheetData);
+      setResultData(null);
+    } catch (error) {
+      console.error("Error loading file:", error);
+    }
   };
 
   const handleToggleOutput = (key: OutputKey) => {
@@ -74,17 +98,22 @@ export default function AddressSplitterToolPage() {
 
     const getOutputKeys = () => {
       const keys: OutputKey[] = [];
-      if (combineUnitAndNumber) {
-        if (activeOutputs.includes('unitAndStreetNumber')) keys.push('unitAndStreetNumber');
+      if (combineFullStreet) {
+        if (activeOutputs.includes('fullStreet')) keys.push('fullStreet');
+      } else if (combineUnitAndNumber) {
+         if (activeOutputs.includes('unitAndStreetNumber')) keys.push('unitAndStreetNumber');
+         if (activeOutputs.includes('streetName')) keys.push('streetName');
       } else {
         if (activeOutputs.includes('unit')) keys.push('unit');
         if (activeOutputs.includes('streetNumber')) keys.push('streetNumber');
+        if (activeOutputs.includes('streetName')) keys.push('streetName');
       }
-      (['streetName', 'city', 'state', 'postcode'] as OutputKey[]).forEach((key) => {
+
+      (['city', 'state', 'postcode'] as OutputKey[]).forEach((key) => {
         if (activeOutputs.includes(key)) keys.push(key);
       });
       return keys;
-    }
+    };
 
     const finalOutputKeys = getOutputKeys();
     const newHeaders = [
@@ -103,6 +132,9 @@ export default function AddressSplitterToolPage() {
       const addressString = row[addressIndex]?.toString() || "";
       const parsed = parseAddress(addressString);
       const newCells = finalOutputKeys.map(key => {
+        if (key === 'fullStreet') {
+          return parsed.street;
+        }
         if (key === 'unitAndStreetNumber') {
           return [parsed.unit, parsed.streetNumber].filter(Boolean).join(', ').trim();
         }
@@ -117,68 +149,129 @@ export default function AddressSplitterToolPage() {
   const headers = (d: SheetData | null) => (d ? d[0] : []);
   const canSplit = data && addressColumn;
 
-  const outputOptions: { key: OutputKey; label: string; disabled?: boolean }[] = [
-    { key: 'unit', label: 'Unit', disabled: combineUnitAndNumber },
-    { key: 'streetNumber', label: 'Street Number', disabled: combineUnitAndNumber },
-    { key: 'unitAndStreetNumber', label: 'Unit & Street Number', disabled: !combineUnitAndNumber },
-    { key: 'streetName', label: 'Street Name' },
-    { key: 'city', label: 'Suburb/City' },
-    { key: 'state', label: 'State' },
-    { key: 'postcode', label: 'Postcode' },
-  ];
+  const displayData = useMemo(() => {
+    if (!data || !hideInputBlanks || !hideInputBlanksCol) return data;
+    const header = data[0];
+    const columnIndex = header.indexOf(hideInputBlanksCol);
+    if (columnIndex === -1) return data;
 
-  const visibleOutputOptions = outputOptions.filter(opt => {
-    if (combineUnitAndNumber) return opt.key !== 'unit' && opt.key !== 'streetNumber';
-    if (!combineUnitAndNumber) return opt.key !== 'unitAndStreetNumber';
-    return true;
-  });
+    const body = data.slice(1).filter(row => {
+        const cellValue = row[columnIndex];
+        return cellValue !== null && cellValue !== undefined && cellValue.toString().trim() !== '';
+    });
+    return [header, ...body];
+  }, [data, hideInputBlanks, hideInputBlanksCol]);
+
+  const visibleOutputOptions = useMemo(() => {
+    let options = outputOptions;
+    if (combineFullStreet) {
+        options = options.filter(opt => !['unit', 'streetNumber', 'streetName', 'unitAndStreetNumber'].includes(opt.key));
+    } else if (combineUnitAndNumber) {
+        options = options.filter(opt => !['unit', 'streetNumber', 'fullStreet'].includes(opt.key));
+    } else {
+        options = options.filter(opt => !['unitAndStreetNumber', 'fullStreet'].includes(opt.key));
+    }
+    return options;
+  }, [combineFullStreet, combineUnitAndNumber]);
 
   return (
     <div className="flex flex-col p-4 space-y-6">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold">{t("titleAddressSplitterPage")}</h1>
-        <p className="text-muted-foreground">
-          Separate a single address column into its component parts.
-        </p>
+      <div className="text-center">
+        <h1 className="text-3xl font-bold">Address Splitter Tool</h1>
+        <p className="text-muted-foreground">Upload a file and split address columns into separate components.</p>
       </div>
 
       <FileUploader
         title="Upload Spreadsheet File"
+        acceptedFileTypes=".csv, .xlsx, .xls"
         onFileSelect={handleFileLoad}
       />
 
-      {data && <DataTable data={data} />}
+      {data && (
+        <Card>
+            <CardHeader><CardTitle>1. Preview Input Data</CardTitle></CardHeader>
+            <CardContent>
+                <div className="flex items-center gap-4 mb-4 flex-wrap">
+                    <div className="flex items-center space-x-2">
+                        <Checkbox
+                            id="hide-blanks-input"
+                            checked={hideInputBlanks}
+                            onCheckedChange={(checked) => setHideInputBlanks(checked === true)}
+                        />
+                        <label htmlFor="hide-blanks-input" className="text-sm font-medium whitespace-nowrap">Hide rows with blank cells in column:</label>
+                    </div>
+                    <Select onValueChange={setHideInputBlanksCol} value={hideInputBlanksCol} disabled={!hideInputBlanks}>
+                        <SelectTrigger className="w-[250px]">
+                            <SelectValue placeholder="Select column..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {headers(data).map((h, i) => (
+                                <SelectItem key={i} value={h.toString()}>{h}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                {displayData && <DataTable data={displayData} />}
+            </CardContent>
+        </Card>)}
 
       {data && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center"><Settings2 className="mr-2 h-5 w-5" />2. Configure Split</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Settings2 className="h-5 w-5" />
+              2. Configure Address Splitting
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
               <h4 className="font-medium mb-2">Select Address Column</h4>
+              <Input
+                placeholder="Search for a column..."
+                value={addressColumnSearch}
+                onChange={(e) => setAddressColumnSearch(e.target.value)}
+                className="mb-2 w-full md:w-1/2"
+              />
               <Select onValueChange={setAddressColumn} value={addressColumn}>
                 <SelectTrigger className="w-full md:w-1/2">
                   <SelectValue placeholder="Select column to split..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {headers(data).map((h, i) => (
-                    <SelectItem key={i} value={h.toString()}>
-                      {h}
-                    </SelectItem>
-                  ))}
+                  {headers(data)
+                    .filter(h => h.toString().toLowerCase().includes(addressColumnSearch.toLowerCase()))
+                    .map((h, i) => (
+                      <SelectItem key={i} value={h.toString()}>
+                        {h}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <h4 className="font-medium mb-4">Select Output Columns</h4>
+              <div className="flex items-center space-x-2 p-2 rounded-md bg-muted/50 mb-2">
+                  <Checkbox
+                    id="combineFullStreet"
+                    checked={combineFullStreet}
+                    onCheckedChange={(checked) => {
+                      const isChecked = checked === true;
+                      setCombineFullStreet(isChecked);
+                      if (isChecked) {
+                          setCombineUnitAndNumber(false);
+                          setActiveOutputs(prev => [...prev.filter(k => !['unit', 'streetNumber', 'streetName', 'unitAndStreetNumber'].includes(k)), 'fullStreet']);
+                      } else {
+                          setActiveOutputs(prev => [...prev.filter(k => k !== 'fullStreet'), 'unit', 'streetNumber', 'streetName']);
+                      }
+                    }}
+                  />
+                  <label htmlFor="combineFullStreet" className="text-sm font-medium">Combine Unit, Street Number, and Street Name</label>
+              </div>
               <div className="flex items-center space-x-2 p-2 rounded-md bg-muted/50 mb-4">
                   <Checkbox
                     checked={combineUnitAndNumber}
                     onCheckedChange={(checked) => {
                       const isChecked = checked === true;
                       setCombineUnitAndNumber(isChecked);
-                      // Toggle relevant active outputs
                       if (isChecked) {
                         setActiveOutputs(prev => [...prev.filter(k => k !== 'unit' && k !== 'streetNumber'), 'unitAndStreetNumber']);
                       } else {
@@ -186,8 +279,9 @@ export default function AddressSplitterToolPage() {
                       }
                     }}
                   />
-                  <label className="text-sm font-medium">Combine Unit and Street Number</label>
+                  <label className="text-sm font-medium">Combine Unit and Street Number (only)</label>
               </div>
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {visibleOutputOptions.map(({ key, label }) => (
                   <div key={key} className="space-y-2 flex flex-col">
