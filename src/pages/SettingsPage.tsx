@@ -83,7 +83,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h4 className="font-medium">Features</h4>
-                <p className="text-muted-foreground">Filter Tool, Reorder Tool</p>
+                <p className="text-muted-foreground">Filter Tool, Address Splitter Tool</p>
               </div>
             </div>
             <div className="pt-4 border-t">
