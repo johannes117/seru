@@ -10,6 +10,7 @@ i18n.use(initReactI18next).init({
         titleFilterToolPage: "Filter Tool",
         titleSettingsPage: "Settings",
         titleAddressSplitterPage: "Address Splitter",
+        titleRecordSplitterPage: "Record Splitter",
       },
     },
     "pt-BR": {
@@ -18,6 +19,7 @@ i18n.use(initReactI18next).init({
         titleFilterToolPage: "Ferramenta de Filtro",
         titleSettingsPage: "Configurações",
         titleAddressSplitterPage: "Divisor de Endereços",
+        titleRecordSplitterPage: "Divisor de Registros",
       },
     },
   },

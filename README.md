@@ -4,8 +4,9 @@ A simple and elegant desktop application for basic spreadsheet manipulation, bui
 
 ## Features
 
+- **Address Splitter Tool**: Parse a single address column into multiple components (unit, street, city, state, postcode).
 - **Filter Tool**: Filter a spreadsheet by removing rows that match entries in a second "no-contact" list.
-- **Reorder Tool**: Easily change the column order of your spreadsheet.
+- **Record Splitter Tool**: Split a large spreadsheet into multiple smaller files based on a specified row count.
 - **Modern UI**: Built with Shadcn UI and Tailwind CSS.
 - **Cross-Platform**: Works on Windows, macOS, and Linux.
 

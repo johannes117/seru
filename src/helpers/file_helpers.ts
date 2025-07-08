@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import JSZip from "jszip";
 
 export type SheetData = (string | number)[][];
 
@@ -43,6 +44,75 @@ export function downloadSheet(data: SheetData, filename: string) {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
   XLSX.writeFile(workbook, filename);
+}
+
+/**
+ * Splits a sheet's data into multiple chunks of a specified size.
+ * Each chunk includes the original header row.
+ * @param data The full sheet data.
+ * @param chunkSize The maximum number of data rows per chunk.
+ * @returns An array of SheetData chunks.
+ */
+export function splitSheet(data: SheetData, chunkSize: number): SheetData[] {
+  if (!data || data.length < 2 || chunkSize <= 0) {
+    return data ? [data] : [];
+  }
+
+  const headers = data[0];
+  const rows = data.slice(1);
+  const chunks: SheetData[] = [];
+
+  for (let i = 0; i < rows.length; i += chunkSize) {
+    const chunkRows = rows.slice(i, i + chunkSize);
+    chunks.push([headers, ...chunkRows]);
+  }
+
+  return chunks;
+}
+
+/**
+ * Creates a ZIP file containing multiple Excel sheets and triggers a download.
+ * @param sheets An array of SheetData to be converted into Excel files.
+ * @param baseFileName The base name for the output files (e.g., "my_data.xlsx").
+ * @param zipFileName The name for the final ZIP file (e.g., "archive.zip").
+ */
+export async function downloadSheetsAsZip(
+  sheets: SheetData[],
+  baseFileName: string,
+  zipFileName: string,
+) {
+  const zip = new JSZip();
+
+  const getExtension = (filename: string) => {
+    const parts = filename.split(".");
+    return parts.length > 1 ? parts.pop() : "";
+  };
+
+  const nameWithoutExtension = baseFileName.replace(/\.[^/.]+$/, "");
+  const extension = getExtension(baseFileName) || "xlsx";
+
+  sheets.forEach((sheetData, index) => {
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+
+    const fileIndex = (index + 1).toString().padStart(2, "0");
+    const fileName = `${nameWithoutExtension}_${fileIndex}.${extension}`;
+
+    zip.file(fileName, wbout);
+  });
+
+  const zipBlob = await zip.generateAsync({ type: "blob" });
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(zipBlob);
+  link.download = zipFileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
 }
 
 function parseStreetLine(streetLine: string): { unit: string; streetNumber: string; streetName: string } {

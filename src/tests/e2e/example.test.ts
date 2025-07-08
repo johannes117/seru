@@ -37,26 +37,27 @@ test.beforeAll(async () => {
 
 test("renders the first page", async () => {
   const page: Page = await electronApp.firstWindow();
+  // The first page is now the Address Splitter tool, not a splash screen
   const title = await page.waitForSelector("h1");
   const text = await title.textContent();
-  expect(text).toBe("Seru");
+  expect(text).toBe("Address Splitter Tool");
 });
 
 test("renders navigation menu", async () => {
   const page: Page = await electronApp.firstWindow();
   await page.waitForSelector("nav");
   
-  // Check if Dashboard link exists
-  const dashboardLink = await page.getByText("Dashboard");
-  expect(dashboardLink).toBeTruthy();
+  // Check if Address Splitter link exists
+  const addressSplitterLink = await page.getByText("Address Splitter");
+  expect(addressSplitterLink).toBeTruthy();
   
   // Check if Filter Tool link exists
   const filterLink = await page.getByText("Filter Tool");
   expect(filterLink).toBeTruthy();
   
-  // Check if Reorder Tool link exists
-  const reorderLink = await page.getByText("Reorder Tool");
-  expect(reorderLink).toBeTruthy();
+  // Check if Record Splitter link exists
+  const recordSplitterLink = await page.getByText("Record Splitter");
+  expect(recordSplitterLink).toBeTruthy();
   
   // Check if Settings link exists
   const settingsLink = await page.getByText("Settings");
@@ -76,7 +77,7 @@ test("can navigate to settings and toggle theme", async () => {
   expect(pageTitle).toContain("Settings");
   
   // Check if theme toggle exists
-  const themeToggle = await page.locator('[data-testid="theme-toggle"], button[aria-label*="theme"], button[aria-label*="Theme"]').first();
+  const themeToggle = await page.locator('[data-testid="theme-toggle"], button[title*="Theme"], button[title*="theme"]').first();
   expect(themeToggle).toBeTruthy();
 });
 

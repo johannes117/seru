@@ -4,6 +4,7 @@ import Sidebar, { type TabKey } from "@/components/Sidebar";
 import AddressSplitterToolPage from "@/pages/AddressSplitterToolPage";
 import FilterToolPage from "@/pages/FilterToolPage";
 import SettingsPage from "@/pages/SettingsPage";
+import RecordSplitterToolPage from "@/pages/RecordSplitterToolPage";
 import { Button } from "@/components/ui/button";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/utils/tailwind";
@@ -15,6 +16,7 @@ export default function BaseLayout() {
   const pages: Record<TabKey, React.ReactNode> = {
     "address-splitter": <AddressSplitterToolPage />,
     filter: <FilterToolPage />,
+    "record-splitter": <RecordSplitterToolPage />,
     settings: <SettingsPage />,
   };
 
