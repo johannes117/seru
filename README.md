@@ -2,8 +2,6 @@
 
 A simple and elegant desktop application for basic spreadsheet manipulation, built with Electron, React, and TypeScript.
 
-![Demo GIF](https://github.com/LuanRoger/electron-shadcn/blob/main/images/demo.gif)
-
 ## Features
 
 - **Filter Tool**: Filter a spreadsheet by removing rows that match entries in a second "no-contact" list.
