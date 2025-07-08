@@ -7,21 +7,19 @@ i18n.use(initReactI18next).init({
     en: {
       translation: {
         appName: "Seru",
-        titleDashboardPage: "Dashboard",
         titleFilterToolPage: "Filter Tool",
-        titleReorderToolPage: "Reorder Tool",
         titleSettingsPage: "Settings",
         titleAddressSplitterPage: "Address Splitter",
+        titleRecordSplitterPage: "Record Splitter",
       },
     },
     "pt-BR": {
       translation: {
         appName: "Seru",
-        titleDashboardPage: "Painel",
         titleFilterToolPage: "Ferramenta de Filtro",
-        titleReorderToolPage: "Ferramenta de Reordenar",
         titleSettingsPage: "Configurações",
         titleAddressSplitterPage: "Divisor de Endereços",
+        titleRecordSplitterPage: "Divisor de Registros",
       },
     },
   },

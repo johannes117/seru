@@ -10,10 +10,14 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: "src/assets/icons/app-icon",
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      iconUrl: "https://raw.githubusercontent.com/your-username/your-repo/main/src/assets/icons/app-icon.ico",
+      setupIcon: "src/assets/icons/app-icon.ico",
+    }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
     new MakerDeb({}),

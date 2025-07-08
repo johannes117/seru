@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowDown, CheckCircle } from "lucide-react";
+import { ArrowDown, CheckCircle, Trash2 } from "lucide-react";
 
 export default function FilterToolPage() {
   const { t } = useTranslation();
@@ -26,6 +26,17 @@ export default function FilterToolPage() {
   const [noContactEmailCol, setNoContactEmailCol] = useState<string>("");
   const [resultData, setResultData] = useState<SheetData | null>(null);
   const [removedCount, setRemovedCount] = useState(0);
+  const [resetKey, setResetKey] = useState(0);
+
+  const handleClearProgress = () => {
+    setMainData(null);
+    setNoContactData(null);
+    setMainEmailCol("");
+    setNoContactEmailCol("");
+    setResultData(null);
+    setRemovedCount(0);
+    setResetKey((prev) => prev + 1);
+  };
 
   const handleFileLoad =
     (setter: React.Dispatch<React.SetStateAction<SheetData | null>>) =>
@@ -74,20 +85,30 @@ export default function FilterToolPage() {
 
   return (
     <div className="flex flex-col p-4 space-y-6">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold">{t("titleFilterToolPage")}</h1>
-        <p className="text-muted-foreground">
-          Upload a main file and a "no-contact" file to filter out matching
-          rows.
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">{t("titleFilterToolPage")}</h1>
+          <p className="text-muted-foreground">
+            Upload a main file and a "no-contact" file to filter out matching
+            rows.
+          </p>
+        </div>
+        {(mainData || noContactData) && (
+          <Button variant="outline" onClick={handleClearProgress}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Clear
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FileUploader
+          key={`main-${resetKey}`}
           title="1. Main Data File"
           onFileSelect={handleFileLoad(setMainData)}
         />
         <FileUploader
+          key={`no-contact-${resetKey}`}
           title="2. No-Contact List File"
           onFileSelect={handleFileLoad(setNoContactData)}
         />

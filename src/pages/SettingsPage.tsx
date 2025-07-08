@@ -75,7 +75,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
                 <h4 className="font-medium">Version</h4>
-                <p className="text-muted-foreground">0.1.0</p>
+                <p className="text-muted-foreground">0.2.0</p>
               </div>
               <div>
                 <h4 className="font-medium">Built with</h4>
@@ -83,7 +83,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h4 className="font-medium">Features</h4>
-                <p className="text-muted-foreground">Filter Tool, Reorder Tool</p>
+                <p className="text-muted-foreground">Filter Tool, Address Splitter Tool, Record Splitter Tool</p>
               </div>
             </div>
             <div className="pt-4 border-t">

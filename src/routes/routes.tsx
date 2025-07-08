@@ -1,52 +1,8 @@
-import { createRoute } from "@tanstack/react-router";
 import { RootRoute } from "./__root";
-import DashboardPage from "../pages/DashboardPage";
-import FilterToolPage from "@/pages/FilterToolPage";
-import ReorderToolPage from "@/pages/ReorderToolPage";
-import SettingsPage from "@/pages/SettingsPage";
-import AddressSplitterToolPage from "@/pages/AddressSplitterToolPage";
 
 // TODO: Steps to add a new route:
-// 1. Create a new page component in the '../pages/' directory (e.g., NewPage.tsx)
-// 2. Import the new page component at the top of this file
-// 3. Define a new route for the page using createRoute()
-// 4. Add the new route to the routeTree in RootRoute.addChildren([...])
-// 5. Add a new Link in the navigation section of RootRoute if needed
+// 1. Create a new page component in the 'src/pages/' directory.
+// 2. Add the component to the `pages` object in `src/layouts/BaseLayout.tsx`.
+// 3. Add a new navigation item in `src/components/Sidebar.tsx`.
 
-export const DashboardRoute = createRoute({
-  getParentRoute: () => RootRoute,
-  path: "/",
-  component: DashboardPage,
-});
-
-export const FilterToolRoute = createRoute({
-  getParentRoute: () => RootRoute,
-  path: "/filter",
-  component: FilterToolPage,
-});
-
-export const ReorderToolRoute = createRoute({
-  getParentRoute: () => RootRoute,
-  path: "/reorder",
-  component: ReorderToolPage,
-});
-
-export const SettingsRoute = createRoute({
-  getParentRoute: () => RootRoute,
-  path: "/settings",
-  component: SettingsPage,
-});
-
-export const AddressSplitterRoute = createRoute({
-  getParentRoute: () => RootRoute,
-  path: "/split-address",
-  component: AddressSplitterToolPage,
-});
-
-export const rootTree = RootRoute.addChildren([
-  DashboardRoute,
-  FilterToolRoute,
-  ReorderToolRoute,
-  AddressSplitterRoute,
-  SettingsRoute,
-]);
+export const rootTree = RootRoute.addChildren([]);

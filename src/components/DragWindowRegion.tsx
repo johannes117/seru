@@ -5,20 +5,15 @@ import {
 } from "@/helpers/window_helpers";
 import React, { type ReactNode } from "react";
 
-interface DragWindowRegionProps {
-  title?: ReactNode;
-}
-
-export default function DragWindowRegion({ title }: DragWindowRegionProps) {
+export default function DragWindowRegion({
+  children,
+}: {
+  children?: ReactNode;
+}) {
   return (
-    <div className="flex w-screen items-stretch justify-between">
-      <div className="draglayer w-full">
-        {title && (
-          <div className="flex flex-1 select-none whitespace-nowrap p-2 text-xs text-gray-400">
-            {title}
-          </div>
-        )}
-      </div>
+    <div className="flex w-full items-stretch justify-between h-[53px] border-b">
+      <div className="flex items-center">{children}</div>
+      <div className="draglayer w-full" />
       <WindowButtons />
     </div>
   );
