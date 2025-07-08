@@ -43,7 +43,6 @@ export default function AddressSplitterToolPage() {
   const [data, setData] = useState<SheetData | null>(null);
   const [resultData, setResultData] = useState<SheetData | null>(null);
   const [addressColumn, setAddressColumn] = useState<string>("");
-  const [addressColumnSearch, setAddressColumnSearch] = useState("");
   const [activeOutputs, setActiveOutputs] = useState<OutputKey[]>(['fullStreet', 'city', 'state', 'postcode']);
   const [outputNames, setOutputNames] = useState<Record<OutputKey, string>>({
       unit: "Unit",
@@ -226,24 +225,16 @@ export default function AddressSplitterToolPage() {
           <CardContent className="space-y-6">
             <div>
               <h4 className="font-medium mb-2">Select Address Column</h4>
-              <Input
-                placeholder="Search for a column..."
-                value={addressColumnSearch}
-                onChange={(e) => setAddressColumnSearch(e.target.value)}
-                className="mb-2 w-full md:w-1/2"
-              />
               <Select onValueChange={setAddressColumn} value={addressColumn}>
                 <SelectTrigger className="w-full md:w-1/2">
                   <SelectValue placeholder="Select column to split..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {headers(data)
-                    .filter(h => h.toString().toLowerCase().includes(addressColumnSearch.toLowerCase()))
-                    .map((h, i) => (
-                      <SelectItem key={i} value={h.toString()}>
-                        {h}
-                      </SelectItem>
-                    ))}
+                  {headers(data).map((h, i) => (
+                    <SelectItem key={i} value={h.toString()}>
+                      {h}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
