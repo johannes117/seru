@@ -26,6 +26,7 @@ export function parseSheet(file: File): Promise<SheetData> {
         const worksheet = workbook.Sheets[sheetName];
         const json: SheetData = XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
+          defval: "",
         });
         resolve(json);
       } catch (error) {
