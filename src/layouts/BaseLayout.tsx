@@ -5,6 +5,7 @@ import AddressSplitterToolPage from "@/pages/AddressSplitterToolPage";
 import FilterToolPage from "@/pages/FilterToolPage";
 import SettingsPage from "@/pages/SettingsPage";
 import RecordSplitterToolPage from "@/pages/RecordSplitterToolPage";
+import AIAssistantPage from "@/pages/AIAssistantPage";
 import { Button } from "@/components/ui/button";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/utils/tailwind";
@@ -17,6 +18,7 @@ export default function BaseLayout() {
     "address-splitter": <AddressSplitterToolPage />,
     filter: <FilterToolPage />,
     "record-splitter": <RecordSplitterToolPage />,
+    "ai-assistant": <AIAssistantPage />,
     settings: <SettingsPage />,
   };
 

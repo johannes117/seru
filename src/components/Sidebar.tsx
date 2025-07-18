@@ -1,10 +1,10 @@
 import React from 'react';
 import { cn } from '@/utils/tailwind';
 import { Button } from './ui/button';
-import { Spline, Filter, Settings, Combine } from 'lucide-react';
+import { Spline, Filter, Settings, Combine, Bot } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export type TabKey = 'address-splitter' | 'filter' | 'record-splitter' | 'settings';
+export type TabKey = 'address-splitter' | 'filter' | 'record-splitter' | 'ai-assistant' | 'settings';
 
 interface NavItem {
   key: TabKey;
@@ -16,6 +16,7 @@ const navItems: NavItem[] = [
   { key: 'address-splitter', labelKey: 'titleAddressSplitterPage', icon: Spline },
   { key: 'filter', labelKey: 'titleFilterToolPage', icon: Filter },
   { key: 'record-splitter', labelKey: 'titleRecordSplitterPage', icon: Combine },
+  { key: 'ai-assistant', labelKey: 'titleAIAssistantPage', icon: Bot },
   { key: 'settings', labelKey: 'titleSettingsPage', icon: Settings },
 ];
 
