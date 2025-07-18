@@ -18,7 +18,13 @@ interface ElectronWindow {
   close: () => Promise<void>;
 }
 
+interface PythonContext {
+  execute: (code: string) => Promise<{ output: string; error: string; exitCode: number }>;
+  checkInstall: () => Promise<{ installed: boolean; version?: string }>;
+}
+
 declare interface Window {
   themeMode: ThemeModeContext;
   electronWindow: ElectronWindow;
+  python: PythonContext;
 }

@@ -11,6 +11,7 @@ i18n.use(initReactI18next).init({
         titleSettingsPage: "Settings",
         titleAddressSplitterPage: "Address Splitter",
         titleRecordSplitterPage: "Record Splitter",
+        titlePythonInterpreterPage: "Python Interpreter",
       },
     },
     "pt-BR": {
@@ -20,6 +21,7 @@ i18n.use(initReactI18next).init({
         titleSettingsPage: "Configurações",
         titleAddressSplitterPage: "Divisor de Endereços",
         titleRecordSplitterPage: "Divisor de Registros",
+        titlePythonInterpreterPage: "Interpretador Python",
       },
     },
   },
