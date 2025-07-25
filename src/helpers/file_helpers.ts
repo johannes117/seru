@@ -71,6 +71,45 @@ export function splitSheet(data: SheetData, chunkSize: number): SheetData[] {
 }
 
 /**
+ * Splits a sheet's data into chunks based on custom sizes.
+ * Each chunk includes the original header row.
+ * @param data The full sheet data.
+ * @param customSizes An array of numbers representing the size of each split.
+ * @returns An array of SheetData chunks.
+ */
+export function splitSheetCustom(data: SheetData, customSizes: number[]): SheetData[] {
+  if (!data || data.length < 2 || customSizes.length === 0) {
+    return data ? [data] : [];
+  }
+
+  const headers = data[0];
+  const rows = data.slice(1);
+  const chunks: SheetData[] = [];
+  
+  let currentRowIndex = 0;
+  
+  for (const size of customSizes) {
+    if (currentRowIndex >= rows.length) break;
+    if (size <= 0) continue;
+    
+    const chunkRows = rows.slice(currentRowIndex, currentRowIndex + size);
+    if (chunkRows.length > 0) {
+      chunks.push([headers, ...chunkRows]);
+      currentRowIndex += size;
+    }
+  }
+  
+  // If there are remaining rows and we've exhausted custom sizes, 
+  // create a new chunk for the remaining rows
+  if (currentRowIndex < rows.length) {
+    const remainingRows = rows.slice(currentRowIndex);
+    chunks.push([headers, ...remainingRows]);
+  }
+  
+  return chunks;
+}
+
+/**
  * Creates a ZIP file containing multiple Excel sheets and triggers a download.
  * @param sheets An array of SheetData to be converted into Excel files.
  * @param baseFileName The base name for the output files (e.g., "my_data.xlsx").
@@ -83,13 +122,8 @@ export async function downloadSheetsAsZip(
 ) {
   const zip = new JSZip();
 
-  const getExtension = (filename: string) => {
-    const parts = filename.split(".");
-    return parts.length > 1 ? parts.pop() : "";
-  };
-
   const nameWithoutExtension = baseFileName.replace(/\.[^/.]+$/, "");
-  const extension = getExtension(baseFileName) || "xlsx";
+  const extension = "xlsx"; // Always use xlsx since we're creating Excel files
 
   sheets.forEach((sheetData, index) => {
     const worksheet = XLSX.utils.aoa_to_sheet(sheetData);

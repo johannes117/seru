@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   parseSheet,
   splitSheet,
+  splitSheetCustom,
   downloadSheetsAsZip,
   type SheetData,
 } from "@/helpers/file_helpers";
@@ -11,13 +12,17 @@ import DataTable from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Combine, CheckCircle, Settings2, Trash2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Combine, CheckCircle, Settings2, Trash2, Plus, X } from "lucide-react";
 
 export default function RecordSplitterToolPage() {
   const { t } = useTranslation();
   const [originalData, setOriginalData] = useState<SheetData | null>(null);
   const [originalFileName, setOriginalFileName] = useState<string>("");
   const [splitSize, setSplitSize] = useState<number>(10000);
+  const [splitMode, setSplitMode] = useState<"even" | "custom">("even");
+  const [customSizes, setCustomSizes] = useState<number[]>([1000]);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [splitCount, setSplitCount] = useState<number>(0);
@@ -27,6 +32,8 @@ export default function RecordSplitterToolPage() {
     setOriginalData(null);
     setOriginalFileName("");
     setSplitSize(10000);
+    setSplitMode("even");
+    setCustomSizes([1000]);
     setIsProcessing(false);
     setIsComplete(false);
     setSplitCount(0);
@@ -53,8 +60,27 @@ export default function RecordSplitterToolPage() {
     }
   };
 
+  const addCustomSize = () => {
+    setCustomSizes([...customSizes, 1000]);
+  };
+
+  const removeCustomSize = (index: number) => {
+    if (customSizes.length > 1) {
+      setCustomSizes(customSizes.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateCustomSize = (index: number, value: number) => {
+    const newSizes = [...customSizes];
+    newSizes[index] = value;
+    setCustomSizes(newSizes);
+  };
+
   const handleSplitAndDownload = async () => {
-    if (!originalData || splitSize <= 0) return;
+    if (!originalData) return;
+    
+    if (splitMode === "even" && splitSize <= 0) return;
+    if (splitMode === "custom" && customSizes.some(size => size <= 0 || isNaN(size))) return;
 
     setIsProcessing(true);
     setIsComplete(false);
@@ -63,7 +89,9 @@ export default function RecordSplitterToolPage() {
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     try {
-      const chunks = splitSheet(originalData, splitSize);
+      const chunks = splitMode === "even" 
+        ? splitSheet(originalData, splitSize)
+        : splitSheetCustom(originalData, customSizes.filter(size => size > 0 && !isNaN(size)));
       setSplitCount(chunks.length);
       const zipFileName = `${originalFileName.replace(/\.[^/.]+$/, "")}_split.zip`;
       await downloadSheetsAsZip(chunks, originalFileName, zipFileName);
@@ -80,7 +108,22 @@ export default function RecordSplitterToolPage() {
     return originalData.length - 1; // Subtract header row
   }, [originalData]);
 
-  const canSplit = originalData && splitSize > 0 && !isProcessing;
+  const estimatedFileCount = useMemo(() => {
+    if (splitMode === "even") {
+      return Math.ceil(totalRows / splitSize);
+    } else {
+      const validSizes = customSizes.filter(size => size > 0 && !isNaN(size));
+      if (validSizes.length === 0) return 0;
+      const totalCustomSize = validSizes.reduce((sum, size) => sum + size, 0);
+      return totalCustomSize >= totalRows ? validSizes.length : validSizes.length + 1;
+    }
+  }, [splitMode, totalRows, splitSize, customSizes]);
+
+  const canSplit = useMemo(() => {
+    if (!originalData || isProcessing) return false;
+    if (splitMode === "even") return splitSize > 0;
+    return customSizes.length > 0 && customSizes.every(size => size > 0 && !isNaN(size));
+  }, [originalData, isProcessing, splitMode, splitSize, customSizes]);
 
   return (
     <div className="flex flex-col p-4 space-y-6">
@@ -124,30 +167,116 @@ export default function RecordSplitterToolPage() {
                 2. Configure Splitting
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div>
-                <label
-                  htmlFor="split-size"
-                  className="font-medium mb-2 block"
+                <Label className="font-medium mb-3 block">Splitting Mode</Label>
+                <RadioGroup
+                  value={splitMode}
+                  onValueChange={(value: "even" | "custom") => setSplitMode(value)}
+                  className="space-y-3"
                 >
-                  Maximum records per file
-                </label>
-                <Input
-                  id="split-size"
-                  type="number"
-                  value={splitSize}
-                  onChange={(e) =>
-                    setSplitSize(Math.max(1, parseInt(e.target.value, 10) || 1))
-                  }
-                  className="w-full md:w-1/2"
-                  min="1"
-                />
-                <p className="text-sm text-muted-foreground mt-2">
-                  Your file with {totalRows.toLocaleString()} records will be
-                  split into approximately {Math.ceil(totalRows / splitSize)}{" "}
-                  files.
-                </p>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="even" id="even" />
+                    <Label htmlFor="even">Even Split - Same size for all files</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="custom" id="custom" />
+                    <Label htmlFor="custom">Custom Split - Define size for each file</Label>
+                  </div>
+                </RadioGroup>
               </div>
+
+              {splitMode === "even" ? (
+                <div>
+                  <Label htmlFor="split-size" className="font-medium mb-2 block">
+                    Maximum records per file
+                  </Label>
+                  <Input
+                    id="split-size"
+                    type="number"
+                    value={splitSize}
+                    onChange={(e) =>
+                      setSplitSize(Math.max(1, parseInt(e.target.value, 10) || 1))
+                    }
+                    className="w-full md:w-1/2"
+                    min="1"
+                  />
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Your file with {totalRows.toLocaleString()} records will be
+                    split into approximately {estimatedFileCount} files.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <Label className="font-medium">File Sizes</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addCustomSize}
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add File
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {customSizes.map((size, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Label className="w-16 text-sm">File {index + 1}:</Label>
+                        <Input
+                          type="number"
+                          value={size || ""}
+                          onChange={(e) => {
+                            const value = e.target.value === "" ? 0 : parseInt(e.target.value, 10);
+                            updateCustomSize(index, isNaN(value) ? 0 : value);
+                          }}
+                          onBlur={(e) => {
+                            const value = parseInt(e.target.value, 10);
+                            if (isNaN(value) || value <= 0) {
+                              updateCustomSize(index, 1);
+                            }
+                          }}
+                          className="w-32"
+                          min="1"
+                        />
+                        <Label className="text-sm text-muted-foreground">records</Label>
+                        {customSizes.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeCustomSize(index)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 p-3 bg-muted rounded-lg">
+                    {(() => {
+                      const validSizes = customSizes.filter(size => size > 0 && !isNaN(size));
+                      const totalSpecified = validSizes.reduce((sum, size) => sum + size, 0);
+                      return (
+                        <>
+                          <p className="text-sm text-muted-foreground">
+                            Total specified: {totalSpecified.toLocaleString()} records
+                            {totalSpecified < totalRows && totalSpecified > 0 && (
+                              <span className="block mt-1">
+                                Remaining {(totalRows - totalSpecified).toLocaleString()} records will be added to a new file.
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Will create approximately {estimatedFileCount} files.
+                          </p>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
